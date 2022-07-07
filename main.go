@@ -30,11 +30,16 @@ func main() {
 
 	extractedSchema, err := jsonschema.Extract(cueJsonSchemaExpr, &jsonschema.Config{
 		PkgName: "myPkg",
-		Strict:  true,
+		// Strict:  true,
 	})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(extractedSchema)
+	val := cueCtx.BuildFile(extractedSchema)
+	if val.Err() != nil {
+		fmt.Println(val.Err())
+		return
+	}
+	fmt.Println(val)
 }
