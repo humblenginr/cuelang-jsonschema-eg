@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"net/http"
+	"io/ioutil"
 
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/encoding/json"
@@ -12,12 +10,12 @@ import (
 )
 
 func main() {
-	schema, err := readRemoteFile("https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json")
+	schema, err := ioutil.ReadFile("compose-spec.json")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	jsonSchema, err := json.Extract("", []byte(schema))
+	jsonSchema, err := json.Extract("", schema)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -39,24 +37,4 @@ func main() {
 		return
 	}
 	fmt.Println(extractedSchema)
-}
-
-func readRemoteFile(url string) (string, error) {
-	response, err := http.Get(url)
-	if err != nil {
-		return " ", err
-	}
-	if response.StatusCode == http.StatusNotFound {
-		return " ", fmt.Errorf("Not found")
-	}
-
-	defer response.Body.Close()
-
-	buf := new(bytes.Buffer)
-	_, err = io.Copy(buf, response.Body)
-	if err != nil {
-		return " ", err
-	}
-
-	return buf.String(), nil
 }
